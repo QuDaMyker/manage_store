@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:manage_store/core/values/app_colors.dart';
+import 'package:manage_store/modules/barcode_manual/view/barcode_manual_screen.dart';
+import 'package:manage_store/modules/scan/view/scan_screen.dart';
 
 import 'package:manage_store/modules/sell/cubit/sell_cubit.dart';
 import 'package:manage_store/modules/sell/models/product_model.dart';
 import 'package:manage_store/modules/sell/widgets/product_widget.dart';
+import 'package:manage_store/utils/default_widget/loading_widget.dart';
 
 class SellScreen extends StatelessWidget {
   const SellScreen({super.key});
@@ -29,7 +32,8 @@ class SellScreen extends StatelessWidget {
             children: [
               Expanded(
                 flex: 1,
-                child: _buildSearchField(title: 'Tìm kiếm sản phẩm'),
+                child: _buildSearchField(
+                    title: 'Tìm kiếm sản phẩm', context: context),
               ),
               Expanded(
                 flex: 1,
@@ -53,9 +57,7 @@ class SellScreen extends StatelessWidget {
           previous.products != current.products,
       builder: (context, state) {
         if (state.isLoading!) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const LoadingWidget();
         }
         return ListView.builder(
           itemCount: state.products.length,
@@ -89,6 +91,14 @@ class SellScreen extends StatelessWidget {
                 Icons.layers_outlined,
               ),
             ),
+            IconButton(
+              onPressed: () {
+                context.read<SellCubit>().getProducts();
+              },
+              icon: const Icon(
+                Icons.replay_outlined,
+              ),
+            ),
           ],
         );
       },
@@ -97,6 +107,7 @@ class SellScreen extends StatelessWidget {
 
   Widget _buildSearchField({
     required String title,
+    required BuildContext context,
   }) {
     return Container(
       decoration: const BoxDecoration(
@@ -140,7 +151,7 @@ class SellScreen extends StatelessWidget {
               ),
               IconButton(
                 onPressed: () {
-                  // Get.to(() => const ScanScreen());
+                  showOptions(context);
                 },
                 icon: const Icon(Icons.qr_code),
               ),
@@ -151,9 +162,81 @@ class SellScreen extends StatelessWidget {
     );
   }
 
+  void showOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 12,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildOption('Quét mã', () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const ScanScreen(),
+                ),
+              );
+            }),
+            const SizedBox(
+              height: 10,
+            ),
+            _buildOption('Nhập thủ công', () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const BarcodeManualScreen(),
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOption(String title, Function onPressed) {
+    return GestureDetector(
+      onTap: () => onPressed(),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              decoration: const BoxDecoration(
+                color: AppColors.blue80,
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+              ),
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   AppBar _buildAppBar() {
     return AppBar(
-      title: const Text('Bán hàng'),
+      title: const Text(
+        'Bán hàng',
+        style: TextStyle(
+          fontSize: 20,
+        ),
+      ),
       actions: [
         IconButton(
           onPressed: () {},

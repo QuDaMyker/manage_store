@@ -3,7 +3,6 @@ import 'package:dropdown_model_list/drop_down/model.dart';
 import 'package:equatable/equatable.dart';
 import 'package:manage_store/modules/sell/models/product_model.dart';
 import 'package:manage_store/modules/sell/services/supbabase_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'sell_state.dart';
 
@@ -25,7 +24,8 @@ class SellCubit extends Cubit<SellState> {
   }
 
   Future<void> getProducts() async {
+    emit(state.copyWith(isLoading: true));
     List<ProductModel> products = await SupabaseService.instance.getProducts();
-    emit(state.copyWith(products: products));
+    emit(state.copyWith(products: products, isLoading: false));
   }
 }
