@@ -14,17 +14,17 @@ class BarcodeManualCubit extends Cubit<BarcodeManualState> {
     );
 
     if (file != null) {
-      emit(state.copyWith(image: file));
+      emit(state.copyWith(image: file.path));
     }
   }
 
-  void onPickCamera() async {
+  Future<void> onPickCamera() async {
     final XFile? file = await imagePicker.pickImage(
       source: ImageSource.camera,
     );
 
     if (file != null) {
-      emit(state.copyWith(image: file));
+      emit(state.copyWith(image: file.path));
     }
   }
 }

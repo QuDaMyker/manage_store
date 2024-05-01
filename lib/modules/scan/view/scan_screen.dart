@@ -167,10 +167,57 @@ class ScanScreen extends StatelessWidget {
         ),
         BlocBuilder<ScanCubit, ScanState>(
           buildWhen: (previous, current) =>
-              previous.isStartScan != current.isStartScan,
+              previous.isStartScan != current.isStartScan ||
+              previous.isNotFound != current.isNotFound,
           builder: (context, state) {
             if (state.isStartScan) {
               return Container();
+            } else if (state.isNotFound) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Không tìm thấy sản phẩm',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {},
+                        child: const Text(
+                          'Thêm thủ công',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          context.read<ScanCubit>().onContinueOtherCode();
+                        },
+                        child: const Text(
+                          'Tiếp tục với mã khác',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
             }
             return SingleChildScrollView(
               child: Container(

@@ -4,16 +4,16 @@ final class BarcodeManualState extends Equatable {
   const BarcodeManualState({
     required this.barcode,
     required this.nameProduct,
-    this.image,
+    this.image = '',
   });
   final String barcode;
   final String nameProduct;
-  final XFile? image;
+  final String image;
 
   BarcodeManualState copyWith({
     String? barcode,
     String? nameProduct,
-    XFile? image,
+    String? image,
   }) {
     return BarcodeManualState(
       barcode: barcode ?? this.barcode,
@@ -23,5 +23,5 @@ final class BarcodeManualState extends Equatable {
   }
 
   @override
-  List<Object> get props => [barcode, nameProduct, image!];
+  List<Object> get props => [barcode, nameProduct, image];
 }

@@ -14,6 +14,11 @@ class ScanCubit extends Cubit<ScanState> {
   ProductModel productModel =
       ProductModel(id: 'id', barcode: 'barcode', title: 'title', img: 'img');
 
+  void onContinueOtherCode() {
+    emit(
+        state.copyWith(isNotFound: false, isLoading: false, isStartScan: true));
+  }
+
   void onStartScan() {
     if (state.isStartScan) {
       emit(state.copyWith(isStartScan: false));
@@ -41,12 +46,15 @@ class ScanCubit extends Cubit<ScanState> {
       switch (response.data['status']) {
         case 401:
           {
-            productModel = ProductModel(
-              id: response.data['message'],
-              barcode: code,
-              title: response.data['message'],
-              img: response.data['message'],
-            );
+            // productModel = ProductModel(
+            //   id: response.data['message'],
+            //   barcode: code,
+            //   title: response.data['message'],
+            //   img: response.data['message'],
+            // );
+
+            emit(state.copyWith(isNotFound: true, isStartScan: false));
+
             break;
           }
         case 201:
@@ -57,6 +65,7 @@ class ScanCubit extends Cubit<ScanState> {
               title: response.data['message'],
               img: response.data['message'],
             );
+            emit(state.copyWith(isNotFound: false));
             break;
           }
         case 200:
@@ -67,6 +76,8 @@ class ScanCubit extends Cubit<ScanState> {
               title: response.data['title'],
               img: response.data['img'],
             );
+            emit(state.copyWith(isNotFound: false));
+
             break;
           }
 
@@ -84,10 +95,13 @@ class ScanCubit extends Cubit<ScanState> {
         ),
       );
 
-      emit(state.copyWith(isStartScan: true));
+      //emit(state.copyWith(isStartScan: true));
     }
 
-    emit(state.copyWith(isStartScan: false));
+    // emit(state.copyWith(isStartScan: false));
+    // Future.delayed(const Duration(seconds: 1), () {
+    //   emit(state.copyWith(isStartScan: true));
+    // });
   }
 
   Future<void> checkGrant() async {

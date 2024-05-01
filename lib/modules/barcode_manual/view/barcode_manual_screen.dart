@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:manage_store/core/values/app_colors.dart';
 import 'package:manage_store/modules/barcode_manual/cubit/barcode_manual_cubit.dart';
@@ -82,22 +83,123 @@ class _BarcodeManualScreenState extends State<BarcodeManualScreen> {
               height: 5,
             ),
             _buildImage(context),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.blue60,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Hoàn thành',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       ),
     );
   }
 
-  Widget _buildImage(BuildContext ct) {
+  Widget _buildImage(BuildContext context) {
     return BlocBuilder<BarcodeManualCubit, BarcodeManualState>(
       buildWhen: (previous, current) => previous.image != current.image,
       builder: (context, state) {
         return GestureDetector(
           onTap: () {
-            showOptions(ct);
+            Get.bottomSheet(Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildOption(
+                      'Chọn ảnh từ thư viện',
+                      () async {
+                        // Navigator.pop(context);
+                        context.read<BarcodeManualCubit>().onPickGallery();
+                        //print(state.barcode);
+                        // final ImagePicker imagePicker = ImagePicker();
+                        // final XFile? file = await imagePicker.pickImage(
+                        //   source: ImageSource.gallery,
+                        // );
+                      },
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    _buildOption('Chọn ảnh từ máy ảnh', () async {
+                      Navigator.pop(context);
+                      context.read<BarcodeManualCubit>().onPickCamera();
+                    }),
+                  ],
+                ),
+              ),
+            ));
+            // showModalBottomSheet(
+            //   context: context,
+            //   builder: (context) => Padding(
+            //     padding: const EdgeInsets.symmetric(
+            //       vertical: 12,
+            //     ),
+            //     child: Column(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       mainAxisSize: MainAxisSize.min,
+            //       children: [
+            //         _buildOption(
+            //           'Chọn ảnh từ thư viện',
+            //           () async {
+            //             // Navigator.pop(context);
+            //             //context.read<BarcodeManualCubit>().onPickGallery();
+            //             print(state.barcode);
+            //             // final ImagePicker imagePicker = ImagePicker();
+            //             // final XFile? file = await imagePicker.pickImage(
+            //             //   source: ImageSource.gallery,
+            //             // );
+            //           },
+            //         ),
+            //         const SizedBox(
+            //           height: 10,
+            //         ),
+            //         _buildOption('Chọn ảnh từ máy ảnh', () {
+            //           Navigator.pop(context);
+            //           Navigator.of(context).push(
+            //             MaterialPageRoute(
+            //               builder: (context) => const BarcodeManualScreen(),
+            //             ),
+            //           );
+            //         }),
+            //       ],
+            //     ),
+            //   ),
+            // );
           },
           child: Container(
-            height: 100,
+            height: 200,
+            width: Get.width,
+            clipBehavior: Clip.hardEdge,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               color: AppColors.grey80.withOpacity(0.6),
@@ -108,13 +210,20 @@ class _BarcodeManualScreenState extends State<BarcodeManualScreen> {
                 left: BorderSide(width: 1, color: AppColors.blue80),
               ),
             ),
-            child: state.image == null
+            child: state.image.isEmpty
                 ? const Center(
                     child: Text('Nhấn để chọn hình ảnh'),
                   )
-                : Image.file(
-                    File(
-                      state.image.toString(),
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(11),
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.file(
+                      isAntiAlias: false,
+                      scale: 1,
+                      fit: BoxFit.cover,
+                      File(
+                        state.image.toString(),
+                      ),
                     ),
                   ),
           ),
@@ -123,7 +232,7 @@ class _BarcodeManualScreenState extends State<BarcodeManualScreen> {
     );
   }
 
-  void showOptions(BuildContext context) {
+  void showOptions() {
     showModalBottomSheet(
       context: context,
       builder: (context) => Padding(
@@ -141,22 +250,14 @@ class _BarcodeManualScreenState extends State<BarcodeManualScreen> {
                   () async {
                     // Navigator.pop(context);
                     context.read<BarcodeManualCubit>().onPickGallery();
-                    // final ImagePicker imagePicker = ImagePicker();
-                    // final XFile? file = await imagePicker.pickImage(
-                    //   source: ImageSource.gallery,
-                    // );
                   },
                 ),
                 const SizedBox(
                   height: 10,
                 ),
-                _buildOption('Chọn ảnh từ máy ảnh', () {
+                _buildOption('Chọn ảnh từ máy ảnh', () async {
                   Navigator.pop(context);
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const BarcodeManualScreen(),
-                    ),
-                  );
+                  context.read<BarcodeManualCubit>().onPickCamera();
                 }),
               ],
             );
